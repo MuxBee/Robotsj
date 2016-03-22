@@ -99,6 +99,7 @@ bool rijden(int snelheid, bool moving)
 task main()
 {
 	bool moving;
+	bool startE = false;
 	string command;
 
 	while(true)
@@ -110,7 +111,7 @@ task main()
 			remmen(snelheid);
 			moving = false;
 		}
-		if(command == "B")
+		if(command == "B" && !startE)
 		{
 			moving = true;
 		}
