@@ -50,21 +50,24 @@ char* bluetooth()
   return s;
 }
 
-bool rijden(int snelheid, bool moving)
+
+bool rijden(int snelheid, bool moving, bool kruispunt, int richting)
 {
 	int remming = 10;
-	if(moving)
+	string command;
+//	bool kruispunt = 0;
+	if(moving && !kruispunt)
 	{
-		if(SensorValue[lineColorLeft] != 1 && SensorValue[lineColorRight] != 1)
+		if(SensorValue[lineColorLeft] != 1 && SensorValue[lineColorRight] != 1) //Rechtdoor Rijden
 		{
 			if(SensorValue[lineLight] < 50)
 			{
 				gas(snelheid,snelheid);
 			}
 		}
-		else if(SensorValue[lineColorLeft] != 1 && SensorValue[lineColorRight] == 1)
+		else if(SensorValue[lineColorLeft] != 1 && SensorValue[lineColorRight] == 1) //Bocht naar rechts.
 		{
-			snelheid = 50;
+			snelheid = 20;
 			for(int i = snelheid; i > 0; i -= remming)
 			{
 				if(SensorValue[lineLight] >= 50)
@@ -74,9 +77,9 @@ bool rijden(int snelheid, bool moving)
 				gas(i, snelheid);
 			}
 		}
-		else if(SensorValue[lineColorLeft] == 1 && SensorValue[lineColorRight] != 1)
+		else if(SensorValue[lineColorLeft] == 1 && SensorValue[lineColorRight] != 1) // Bocht naar links.
 		{
-			snelheid = 50;
+			snelheid = 20;
 			for(int i = snelheid; i > 0; i -= remming)
 			{
 				if(SensorValue[lineLight] >= 50)
@@ -90,35 +93,116 @@ bool rijden(int snelheid, bool moving)
 		{
 			remmen(snelheid);
 			schieten(2);
-			moving = false;
+			moving = true;
+			gas(10,10);
 		}
 	}
+	if(moving && kruispunt)
+	{
+
+		if(richting == 1)
+		{
+			snelheid = 20;
+			if(SensorValue[lineColorLeft] != 1 && SensorValue[lineColorRight] != 1) //Rechtdoor Rijden
+			{
+				if(SensorValue[lineLight] < 50)
+					{
+						gas(snelheid,snelheid);
+					}
+			}
+
+			if(SensorValue[lineColorLeft] == 1 && SensorValue[lineColorRight] == 1) // Linksaf
+			{
+
+				for(int i = snelheid; i > 0; i -= remming)
+				{
+					if(SensorValue[lineLight] >= 50)
+					{
+						remming = 5;
+					}
+					gas(i, snelheid);
+				}
+				kruispunt = false;
+				richting = 0;
+
+				moving = true;
+			}
+
+		}
+
+		if(richting == 2)
+		{
+			snelheid = 30;
+			if(SensorValue[lineColorLeft] != 1 && SensorValue[lineColorRight] != 1) //Rechtdoor Rijden
+			{
+				if(SensorValue[lineLight] < 50)
+					{
+						gas(snelheid,snelheid);
+					}
+			}
+
+			if(SensorValue[lineColorLeft] == 1 && SensorValue[lineColorRight] == 1)
+			{
+
+				while(SensorValue[lineColorLeft] == 1 && SensorValue[lineColorRight] == 1)
+				{
+						gas(0,100);
+						wait1Msec(13);
+				}
+
+				kruispunt = false;
+				richting = 0;
+				moving = true;
+				moving = rijden(snelheid,moving,kruispunt,richting);
+			}
+		}
+
+	}
+
 	return moving;
 }
 
 task main()
 {
 	bool moving;
+	int richting = 0;
+	bool kruispunt = false;
 	bool startE = false;
 	string command;
 
 	while(true)
 	{
-		int snelheid = 100;
+		int x;
+
+		int snelheid = x;
 		command = bluetooth();
-		if(command == "A")
+
+		if(command == "DOWN")
 		{
 			remmen(snelheid);
 			moving = false;
 		}
-		if(command == "B" && !startE)
+		if(command == "UP" && !startE)
 		{
 			moving = true;
+			x = 100;
 		}
-		if(command == "C")
+		if(command == "FIRE")
 		{
 			schieten(2);
 		}
-	  moving = rijden(snelheid,moving);
+
+		if(command == "LEFT")
+		{
+			kruispunt = true;
+			richting = 1;
+		}
+		if(command == "C")
+		{
+			kruispunt = false;
+			richting = 0;
+			snelheid = -25;
+		}
+	  moving = rijden(snelheid,moving,kruispunt,richting);
 	}
 }
