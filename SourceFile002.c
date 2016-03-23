@@ -54,6 +54,7 @@ char* bluetooth()
 bool rijden(int snelheid, bool moving, bool kruispunt, int richting)
 {
 	int remming = 10;
+
 	string command;
 //	bool kruispunt = 0;
 	if(moving && !kruispunt)
@@ -102,7 +103,7 @@ bool rijden(int snelheid, bool moving, bool kruispunt, int richting)
 
 		if(richting == 1)
 		{
-			snelheid = 20;
+			snelheid = 40;
 			if(SensorValue[lineColorLeft] != 1 && SensorValue[lineColorRight] != 1) //Rechtdoor Rijden
 			{
 				if(SensorValue[lineLight] < 50)
@@ -111,23 +112,30 @@ bool rijden(int snelheid, bool moving, bool kruispunt, int richting)
 					}
 			}
 
-			if(SensorValue[lineColorLeft] == 1 && SensorValue[lineColorRight] == 1) // Linksaf
+			if(SensorValue[lineColorLeft] == 1 && SensorValue[lineColorRight] == 1) // Linksaf met kruispunt
 			{
-
+			while(snelheid != remming){
 				for(int i = snelheid; i > 0; i -= remming)
 				{
 					if(SensorValue[lineLight] >= 50)
 					{
 						remming = 5;
 					}
-					gas(i, snelheid);
+					gas(snelheid, i);
+
 				}
-				kruispunt = false;
-				richting = 0;
+				if(SensorValue[lineColorLeft] != 1 && SensorValue[lineColorRight] != 1 && SensorValue[lineLight] < 50)
+					{
+						snelheid = remming;
+						richting = 0;
+						kruispunt = false;
+					}
+				}
+			}
+	//			kruispunt = false;
+		//		richting = 0;
 
 				moving = true;
-			}
-
 		}
 
 		if(richting == 2)
@@ -169,6 +177,7 @@ task main()
 	bool kruispunt = false;
 	bool startE = false;
 	string command;
+
 
 	while(true)
 	{
