@@ -35,17 +35,10 @@ void scannen(int graden, int rotatie)
 void ontwijken()
 {
 
-	int rotatie = 50;																							//Displayed tekst op nxt schrem//
+	int rotatie = 50;
 	gas(rotatie,rotatie);
 	wait10Msec(105);
 	remmen(rotatie);
-	nxtDisplayTextLine(0, "====ONTWIJKEN====");										//Naam functie//
-	nxtDisplayTextLine(2, "MRotatie: 0.00");											//Rotatie Motor//
-	nxtDisplayTextLine(3, "Locatie:  0.00");											//Welke stap het process is(0-4)//
-	nxtDisplayTextLine(4, "Afstand:  0.00");											//Afstand van mogelijk object//
-	nxtDisplayTextLine(5, "Rotatie:  %2.2f", rotatie);						//Snelheid//
-	nxtDisplayTextLine(7, "       -Muscio97");										//Auteur//
-
 	if(SensorValue[sonar] < 30)
 	{
 		scannen(90, (rotatie/4));																//Sonar wordt naar Rechts gedraaid//
@@ -63,55 +56,45 @@ void ontwijken()
 				gas(0,0);
 				scannen(90, (rotatie/4));														//Sonar draaid terug naar het "nul punt", in het verlengde van de NXT "recht"//
 			}
-			else																									//Als Rechts geen object is//
+			else																									//Als er links een object is//
 			{
-				scannen(90, (rotatie/4));
-				gas(rotatie, -rotatie);															//Dan zal de NXT naar Links draaien//
+				scannen(90, (rotatie/4));														//Draai de sonar weer naar zijn nulpunt.
+				gas(rotatie, -rotatie);															//Dan zal de NXT naar Links draaien.
 				wait10Msec(5700/rotatie);														//Een hogeren snelheid vraagt om minder tijd om de zelfde afstand afteleggen, dus de tijd wordt gedeeld door huidge snelheid//
 				gas(0,0);
-				scannen(90, (rotatie/4));														//Sonar draaid naar rechts//
-				if(!SensorValue[sonar] < 30)
-				{
+				scannen(90, (rotatie/4));														//Sonar draaid naar rechts.
+
 					while(SensorValue[sonar] < 30)
 					{
-						nxtDisplayTextLine(4, "Afstand: %2.2f", SensorValue[sonar]);
 						gas(rotatie, rotatie);													//Zolang de NXT een object detecteerd, zal de unit door blijven rijden//
 					}
-					gas(rotatie, rotatie);
+					gas(rotatie, rotatie);														//Als de NXT geen object (meer) ziet, dan zal die Rechts draaien//
 					wait10Msec(40);
-					scannen(90, -(rotatie/4));
-					gas(-rotatie,rotatie);														//Als de NXT geen object (meer) ziet, dan zal die Rechts draaien//
+					scannen(90, -(rotatie/4));												//De Sonar wordt naar zijn nulpunt gedraaid
+					gas(-rotatie,rotatie);
 					wait10Msec(5700/rotatie);
-					if(!SensorValue[sonar] < 30)
-					{
-						gas(rotatie, rotatie);
-					}
-					scannen(90, (rotatie/4));
+					gas(rotatie, rotatie);
+					scannen(90, (rotatie/4));													//Sonar draait naar rechts.
 					wait10Msec(30);
 					while(SensorValue[sonar] < 30)
 					{
 						gas(rotatie,rotatie);
 					}
 					gas(rotatie, rotatie);
-					wait10Msec(150);
+					wait10Msec(40);
 					gas(0,0);
 					gas(-rotatie,rotatie);														//Als de NXT geen object (meer) ziet, dan zal die Rechts draaien//
 					wait10Msec(5700/rotatie);
-					while(SensorValue[sonar] < 30)
-					{
-						nxtDisplayTextLine(4, "Afstand: %2.2f", SensorValue[sonar]);
-						gas(rotatie,rotatie);
+					while(SensorValue[lineColorLeft] != 1 || SensorValue[lineColorRight] != 1) //Als hij de lijn niet ziet blijft hij rechtdoor rijden.
+					{																																					 //Zodra hij een zwarte lijn ziet, draait hij bij tot die
+						gas(rotatie,rotatie);		//rechtdoor																			 //recht genoeg op de baan staat.
 					}
-					gas(rotatie,rotatie);
-					wait10Msec(150);
-					//if(SensorValue[lineColorLeft] == 1 || SensorValue[lineColorRight] == 1)
-					//{
-						gas(rotatie,-rotatie);
-						wait10Msec(2500/rotatie);
-						scannen(90, -(rotatie/4));
-					//}
-					gas(0,0);
-				}
+					wait10Msec(60);
+					gas(rotatie,-rotatie); //Draai de willen in tegengestelde richting van elkaar (draai de auto). gas(rechtermotor,linkermotor)
+
+					wait10Msec(2000/rotatie); //Wacht tot hij zich 90 graden naar links gedraait heeft.
+					scannen(90, -(rotatie/4)); //Draai de sensor weer naar zijn nulpunt.
+					gas(0,0);									//Zet de auto stil en ga vervolgens weer de functie rijden in.
 			}
 		}
 		else
@@ -125,13 +108,10 @@ void ontwijken()
 				{
 					wait10Msec(15);
 					gas(rotatie, rotatie);														//NXT rijd vooruit//
-					nxtDisplayTextLine(4, "Afstand: %2.2f", SensorValue[sonar]);
 					while(SensorValue[sonar] < 30)
 					{
-						nxtDisplayTextLine(4, "Afstand: %2.2f", SensorValue[sonar]);
 						gas(rotatie, rotatie);													//Zolang de NXT een object detecteerd, zal de unit door blijven rijden//
 					}
-					nxtDisplayTextLine(4, "Afstand: %2.2f", SensorValue[sonar]);
 					scannen(90, (rotatie/4));
 					gas(rotatie,-rotatie);														//Als de NXT geen object (meer) ziet, dan zal die Links draaien//
 					wait10Msec(5500/rotatie);
@@ -154,24 +134,16 @@ void ontwijken()
 					wait10Msec(6000/rotatie);
 					gas(0,0);
 
-					while(SensorValue[lineColorLeft] != 1 || SensorValue[lineColorRight] != 1)
-					{
-					//	nxtDisplayTextLine(4, "Afstand: %2.2f", SensorValue[sonar]);
-						gas(rotatie,rotatie);
+					while(SensorValue[lineColorLeft] != 1 || SensorValue[lineColorRight] != 1) //Als hij de lijn niet ziet blijft hij rechtdoor rijden.
+					{																																					 //Zodra hij een zwarte lijn ziet, draait hij bij tot die
+						gas(rotatie,rotatie);		//rechtdoor																			 //recht genoeg op de baan staat.
 					}
 					wait10Msec(60);
-					gas(-rotatie,rotatie);
+					gas(-rotatie,rotatie); //Draai de willen in tegengestelde richting van elkaar (draai de auto). gas(rechtermotor,linkermotor)
 
-					wait10Msec(2000/rotatie);
-					scannen(90, (rotatie/4));
-					gas(0,0);
-				//	wait10Msec(145);
-				/*	gas(rotatie,rotatie);
-					wait10Msec(145);
-					gas(-rotatie,rotatie);
-					wait10Msec(2500/rotatie);
-					scannen(90, (rotatie/4));
-					gas(0,0);*/
+					wait10Msec(2000/rotatie); //Wacht tot hij zich 90 graden naar rechts gedraait heeft.
+					scannen(90, (rotatie/4)); //Draai de sensor weer recht.
+					gas(0,0);									//Zet de auto stil en ga vervolgens weer de functie rijden in.
 				}
 				return;
 			}
@@ -180,7 +152,7 @@ void ontwijken()
 }
 void kruising(int kant,int snelheid, int richting)
 {
-	if(richting == 0)
+	if(richting == 0) //Rij rechtdoor op kruispunt.
 	{
 		if(kant == 0)
 		{
@@ -195,7 +167,7 @@ void kruising(int kant,int snelheid, int richting)
 		gas(snelheid, snelheid);
 		wait1Msec(250);
 	}
-	if(richting == 1)
+	if(richting == 1) //Rechtsaf
 	{
 		if(kant == 0)
 		{
@@ -211,11 +183,12 @@ void kruising(int kant,int snelheid, int richting)
 		wait1Msec(600);
 		nMotorEncoder[motorB] = 0;
 		nMotorEncoder[motorC] = 0;
-		while(nMotorEncoder[motorB] < 505 && nMotorEncoder[motorC] < 505){
+		while(nMotorEncoder[motorB] < 550 && nMotorEncoder[motorC] < 550){
 			gas(snelheid, -snelheid);
 		}
+		gas(0,0);
 	}
-	if(richting == 2)
+	if(richting == 2) //Linksaf
 	{
 		if(kant == 0)
 		{
@@ -231,9 +204,10 @@ void kruising(int kant,int snelheid, int richting)
 		wait1Msec(600);
 		nMotorEncoder[motorB] = 0;
 		nMotorEncoder[motorC] = 0;
-		while(nMotorEncoder[motorB] < 520 && nMotorEncoder[motorC] < 520){
+		while(nMotorEncoder[motorB] < 550 && nMotorEncoder[motorC] < 550){
 			gas(-snelheid, snelheid);
 		}
+		gas(0,0);
 	}
 }
 char* bluetooth()
@@ -256,12 +230,13 @@ char* bluetooth()
 
 bool rijden2(int snelheid, bool moving, int richting)
 {
+	bool gedaan = false;
+
 	if(moving)
 	{
 		int rechts = 0;
 		int links = 1;
 		int remming = 10;
-
 
 		playSoundFile("Darude.rso");
 
@@ -270,11 +245,11 @@ bool rijden2(int snelheid, bool moving, int richting)
 				ontwijken();
 		}
 
-		if(SensorValue[lineColorLeft] == 1)
+		if(SensorValue[lineColorLeft] == 1) // Iets naar links sturen om weer recht op de lijn te komen.
 		{
 			if(SensorValue[lineColorRight] != 1)
 			{
-				for(int i = snelheid; i > -20; i -= remming)
+				for(int i = snelheid; i > -150; i -= remming)
 				{
 					if(SensorValue[lineLight] >= 50)
 					{
@@ -290,21 +265,24 @@ bool rijden2(int snelheid, bool moving, int richting)
 			else if(SensorValue[lineColorRight] == 1 && richting == 0)
 			{
 				kruising(links, snelheid, richting);
+				gedaan = true;
 			}
 			else if(SensorValue[lineColorRight] == 1 && richting == 1)
 			{
 				kruising(links, snelheid, richting);
+				gedaan = true;
 			}
 			else if(SensorValue[lineColorRight] == 1 && richting == 2)
 			{
 				kruising(links, snelheid, richting);
+				gedaan = true;
 			}
 		}
 		else if(SensorValue[lineColorRight] == 1)
 		{
 			if(SensorValue[lineColorLeft] != 1)
 			{
-				for(int i = snelheid; i > -20; i -= remming)
+				for(int i = snelheid; i > -150; i -= remming)
 				{
 					if(SensorValue[lineLight] >= 50)
 					{
@@ -317,41 +295,50 @@ bool rijden2(int snelheid, bool moving, int richting)
 					gas(i, snelheid);
 				}
 			}
-			else if(SensorValue[lineColorRight] == 0 && richting == 0)
+			else if(SensorValue[lineColorRight] == 0 && richting == 0) //Voer kruispunt uit.
 			{
 				kruising(rechts, snelheid, richting);
+				gedaan = true;
 			}
-			else if(SensorValue[lineColorRight] == 1 && richting == 1)
+			else if(SensorValue[lineColorRight] == 1 && richting == 1) //Voer kruispunt uit.
 			{
 				kruising(rechts, snelheid, richting);
+				gedaan = true;
 			}
-			else if(SensorValue[lineColorRight] == 1 && richting == 2)
+			else if(SensorValue[lineColorRight] == 1 && richting == 2)//Voer kruispunt uit.
 			{
 				kruising(rechts, snelheid, richting);
+				gedaan = true;
 			}
 		}
-		else
+		else // Rechtdoor rijden
 		{
 			gas(snelheid, snelheid);
 		}
 	}
-	return moving;
+	return gedaan;
 }
 
 task main()
 {
-	bool moving = true;
+	bool moving = false;
 	string command;
-	int richting = 2;
+	int richting;
+	bool gedaan = false;
 
 	while(true)
 	{
 		int snelheid = 50;
 		command = bluetooth();
+		if(gedaan)
+		{
+			command = "UP";
+		}
 		if(command == "DOWN")
 		{
 			remmen(snelheid);
 			moving = false;
+			clearSounds();
 		}
 		if(command == "UP")
 		{
@@ -366,6 +353,6 @@ task main()
 		{
 			richting = 2;
 		}
-	  moving = rijden2(snelheid,moving,richting);
+	  gedaan = rijden2(snelheid,moving,richting);
 	}
 }
